@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ফ্রি আর্নিং জোন - Adexium</title>
+    
+    <!-- Tailwind CSS for Modern Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Custom Animation Styles -->
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(234, 179, 8, 0.8); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between font-sans select-none overflow-x-hidden">
+
+    <!-- Header Section -->
+    <header class="w-full p-5 text-center bg-slate-900/80 backdrop-blur-md border-b border-slate-800 animate-fade-in">
+        <h1 class="text-2xl font-black bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+            💎 ফ্রি আর্নিং জোন
+        </h1>
+        <p id="user-greeting" class="text-xs text-slate-400 mt-1">স্বাগতম, প্রিয় ইউজার!</p>
+    </header>
+
+    <!-- Main Content / Dashboard -->
+    <main class="flex-1 max-w-md w-full mx-auto p-5 flex flex-col justify-center items-center space-y-6 animate-fade-in">
+        
+        <!-- Stats Card -->
+        <div class="w-full bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl grid grid-cols-2 gap-4 text-center">
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                <p class="text-xs text-slate-400">মোট অ্যাড দেখা হয়েছে</p>
+                <h3 id="ads-count" class="text-2xl font-bold text-yellow-400 mt-1">0</h3>
+            </div>
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                <p class="text-xs text-slate-400">মোট কয়েন অর্জিত</p>
+                <h3 id="coins-count" class="text-2xl font-bold text-emerald-400 mt-1">0</h3>
+            </div>
+        </div>
+
+        <!-- Watch Ad Buttons Section -->
+        <div class="w-full space-y-4">
+            <button id="watchBtn1" class="w-full py-4 px-6 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg transition-all transform active:scale-95 animate-pulse-glow flex items-center justify-center space-x-2 text-lg">
+                <span>📺 ওয়াচ অ্যাড ১ (১০ কয়েন)</span>
+            </button>
+
+            <button id="watchBtn2" class="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold rounded-2xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center space-x-2 text-lg">
+                <span>🚀 ওয়াচ অ্যাড ২ (১৫ কয়েন)</span>
+            </button>
+        </div>
+
+        <!-- Status Notification Box -->
+        <div id="status-msg" class="text-xs text-slate-400 text-center h-6 transition-all duration-300">
+            অ্যাড দেখে রিওয়ার্ড কালেক্ট করুন!
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full p-4 text-center text-xs text-slate-500 border-t border-slate-900">
+        Powered by Adexium &copy; 2026
+    </footer>
+
+    <!-- ✅ ADSXUIT SDK Integration -->
+    <script 
+        src="https://adsxuit.com/sdk.js" 
+        app_id="R06ASLQVJ3EVMLKT">
+    </script>
+
+    <!-- App Logic Script -->
+    <script>
+        // Telegram WebApp Initialization
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Personalize Greeting if user info available
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const userName = tg.initDataUnsafe.user.first_name || "ইউজার";
+            document.getElementById('user-greeting').innerText = `স্বাগতম, ${userName}!`;
+        }
+
+        // Local Storage Tracking State
+        let watchedAds = localStorage.getItem('adexium_ads') ? parseInt(localStorage.getItem('adexium_ads')) : 0;
+        let totalCoins = localStorage.getItem('adexium_coins') ? parseInt(localStorage.getItem('adexium_coins')) : 0;
+
+        function updateUI() {
+            document.getElementById('ads-count').innerText = watchedAds;
+            document.getElementById('coins-count').innerText = totalCoins;
+        }
+        updateUI();
+
+        // Initialize AdsXUIT SDK cache
+        window.addEventListener('load', function() {
+            if (typeof AdsXUIT !== 'undefined') {
+                AdsXUIT.init(function(err, data) {
+                    if (!err) {
+                        console.log('AdsXUIT ready, network:', data?.active_network);
+                    }
+                });
+            }
+        });
+
+        // Helper function for showing status messages
+        function showStatus(msg, isSuccess = true) {
+            const statusEl = document.getElementById('status-msg');
+            statusEl.innerText = msg;
+            statusEl.className = `text-xs text-center h-6 transition-all duration-300 ${isSuccess ? 'text-emerald-400 font-medium' : 'text-rose-400'}`;
+        }
+
+        // Button 1 Event Handler
+        document.getElementById('watchBtn1').addEventListener('click', function() {
+            if (typeof AdsXUIT !== 'undefined') {
+                showStatus('অ্যাড লোড হচ্ছে...');
+                AdsXUIT.reward(function() {
+                    watchedAds += 1;
+                    totalCoins += 10;
+                    localStorage.setItem('adexium_ads', watchedAds);
+                    localStorage.setItem('adexium_coins', totalCoins);
+                    updateUI();
+                    showStatus('অভিনন্দন! আপনি ১০ কয়েন অর্জন করেছেন। 🎉');
+                });
+            } else {
+                showStatus('SDK লোড হতে সময় লাগছে, আবার চেষ্টা করুন।', false);
+            }
+        });
+
+        // Button 2 Event Handler
+        document.getElementById('watchBtn2').addEventListener('click', function() {
+            if (typeof AdsXUIT !== 'undefined') {
+                showStatus('অ্যাড লোড হচ্ছে...');
+                AdsXUIT.reward(function() {
+                    watchedAds += 1;
+                    totalCoins += 15;
+                    localStorage.setItem('adexium_ads', watchedAds);
+                    localStorage.setItem('adexium_coins', totalCoins);
+                    updateUI();
+                    showStatus('অভিনন্দন! আপনি ১৫ কয়েন অর্জন করেছেন। 🚀');
+                });
+            } else {
+                showStatus('SDK লোড হতে সময় লাগছে, আবার চেষ্টা করুন।', false);
+            }
+        });
+    </script>
+</body>
+</html>
